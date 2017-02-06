@@ -7,6 +7,8 @@ import random
 WIDTH = 800
 HEIGHT = 600
 DEFAULT_LIVES = 3
+DEFAULT_LVL=1
+level=DEFAULT_LVL-1
 score = 0
 lives = DEFAULT_LIVES
 time = 0
@@ -226,13 +228,14 @@ def keyup(key):
         
 # mouseclick handlers that reset UI and conditions whether splash image is drawn
 def click(pos):
-    global started, rock_group, lives, score
+    global started, rock_group, lives, score,level
     center = [WIDTH / 2, HEIGHT / 2]
     size = splash_info.get_size()
     inwidth = (center[0] - size[0] / 2) < pos[0] < (center[0] + size[0] / 2)
     inheight = (center[1] - size[1] / 2) < pos[1] < (center[1] + size[1] / 2)
     if (not started) and inwidth and inheight:
         score = 0
+        level = 0
         lives = DEFAULT_LIVES
         started = True
         rock_group = set([])
@@ -269,7 +272,7 @@ def group_group_collide(g1, g2):
     return total_num_of_collision
     
 def draw(canvas):
-    global time, started, lives, score, rock_group
+    global time, started, lives, score, rock_group,level
     
     # animiate background
     time += 1
@@ -285,7 +288,8 @@ def draw(canvas):
     canvas.draw_text("Score", [680, 50], 22, "White")
     canvas.draw_text(str(lives), [50, 80], 22, "White")
     canvas.draw_text(str(score), [680, 80], 22, "White")
-
+    canvas.draw_text("Level", [400, 50], 22, "White")
+    canvas.draw_text(str(level+1), [400, 80], 22, "White")
     # draw ship and sprites
     my_ship.draw(canvas)
     
@@ -298,7 +302,7 @@ def draw(canvas):
     
     num_of_ship_collision = group_collide(rock_group, my_ship)
     score += group_group_collide(rock_group, missile_group)
-    
+    level=score/5
     if num_of_ship_collision > 0:
         lives -= 1
     if lives <= 0:
@@ -324,7 +328,7 @@ def rock_spawner():
             break
         rock_pos = [random.randrange(0, WIDTH), random.randrange(0, HEIGHT)]
         
-    rock_vel = [random.random() * .6 - .3, random.random() * .6 - .3]
+    rock_vel = [random.random() * .6 - .3 +random.randrange(-1,2)*level, random.random() * .6 - .3 +random.randrange(-1,2)*level]
     rock_avel = random.random() * .2 - .1
     rock_group.add(Sprite(rock_pos, rock_vel, 0, rock_avel, asteroid_image, asteroid_info))
             
@@ -348,4 +352,5 @@ timer = simplegui.create_timer(1000.0, rock_spawner)
 # get things rolling
 timer.start()
 frame.start()
+
 
